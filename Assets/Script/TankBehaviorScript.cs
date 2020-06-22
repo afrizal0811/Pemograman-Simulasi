@@ -6,17 +6,36 @@ public class TankBehaviorScript : MonoBehaviour {
 
 	private Transform myTransform;
 	private string stateRotasiV;
-	public float kecepatanRotasi = 20;
+	private float kecepatanRotasi = 20;
+	private GameObject titikTembakan;
+	private AudioSource audioSource;
+
+	public float kecepatanAwal = 150;
+
+	[HideInInspector] public float RotasiY;
+	[HideInInspector] public float sudutMeriam;
 	public GameObject selongsong;
-	public float RotasiY;
+	public GameObject objekTembakan;
+	public GameObject objekLedakan;
+	public GameObject peluruMeriam;
+	public AudioClip audioTembakan;
+	public AudioClip audioLedakan;
 	// Use this for initialization
 	void Start () {
 		myTransform = transform;
+
+		titikTembakan = selongsong.transform.Find ("titiktembakan").gameObject;
+
+		audioSource = selongsong.GetComponent<AudioSource> ();
+
 	}
 	
 	// Update is called once per frame
 	void Update () {
+
 		RotasiY = 360 - selongsong.transform.localEulerAngles.x;
+		sudutMeriam = 11.587f + myTransform.localEulerAngles.z;
+
 		if (RotasiY == 0 || RotasiY == 360) {
 			stateRotasiV = "aman";
 		} else if (RotasiY > 0 && RotasiY < 15) {
@@ -66,6 +85,29 @@ public class TankBehaviorScript : MonoBehaviour {
 		{
 			myTransform.Rotate (Vector3.forward * kecepatanRotasi * Time.deltaTime, Space.Self);
 			Debug.Log("Right Arrow Pressed");
+		}
+
+		//Tembakan
+		if(Input.GetKeyDown(KeyCode.Space)) // horizontal berlawanan jam
+		{
+			//peluru
+			GameObject peluru = Instantiate(peluruMeriam, titikTembakan.transform.position, 
+				Quaternion.Euler (
+					(selongsong.transform.localEulerAngles.x + 90), 
+					0 ,  
+					(-myTransform.localEulerAngles.z - 11 )));
+			
+			//efek tembakan
+			GameObject efekTembakan = Instantiate(objekTembakan, titikTembakan.transform.position, 
+			Quaternion.Euler (
+				(selongsong.transform.localEulerAngles.x), 
+				0 ,  
+				(-myTransform.localEulerAngles.z)));
+
+			Destroy (efekTembakan, 1f);
+
+			//efek suara
+			audioSource.PlayOneShot(audioTembakan);
 		}
 		
 	}
